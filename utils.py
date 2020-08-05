@@ -1,36 +1,37 @@
+import logging
+from selenium.webdriver.common.keys import Keys
 
-def check_button(buttons, num):
-    return buttons[num].text
+def screenshot(setup, game_number):
+    setup["driver"].save_screenshot(f"game{game_number}.png")
 
-def check_end_of_game(buttons):
+def choose_slot(buttons, button_number):
+    buttons[button_number].send_keys(Keys.RETURN)
+    logging.info(f"The slot you choose {button_number}")
+
+def slot_checker(buttons,  button_number):
+    if buttons[button_number].text != '':
+        logging.info(f"The slot you choose {button_number} not empty, please try again! ")
+
+def start_new_game(new_game_button, game_number):
+    logging.info(f"------> Finishing game number {game_number}")
+    new_game_button.send_keys(Keys.RETURN)
+
+def tai_checker(setup, buttons, new_game_button, game_number):
     for i in range(0, 8):
         if buttons[i].text != '':
             continue
         else:
             return False
+    logging.info(f"The game end, No winner!!!")
+    start_new_game(new_game_button, game_number)
     return True
 
-
-def check_the_winner(buttons):
-    # row
-    if buttons[0].text =='X' and buttons[1].text == 'X' and buttons[2].text == 'X'  or buttons[3].text == 'X' and buttons[4].text == 'X' and buttons[5].text == 'X' or buttons[6].text == 'X' and buttons[7].text == 'X' and buttons[8].text == 'X':
-        return 'X'
-    elif buttons[0].text == 'O' and buttons[1].text == 'O' and buttons[2].text == 'O' or buttons[3].text == 'O' and buttons[4].text == 'O' and buttons[5].text == 'O' or buttons[6].text == 'O' and buttons[7].text == 'O' and buttons[8].text == 'O':
-        return 'O'
-
-    # colunm
-    if buttons[0].text == 'X' and buttons[3].text == 'X' and buttons[6].text == 'X' or buttons[1].text == 'X' and buttons[4].text == 'X' and buttons[7].text == 'X' or buttons[2].text == 'X' and buttons[5].text == 'X' and buttons[8].text == 'X':
-        return 'X'
-    elif buttons[0].text == 'O' and buttons[3].text == 'O' and buttons[6].text == 'O'      or buttons[1].text == 'O' and buttons[4].text == 'O' and buttons[7].text == 'O' or buttons[2].text == 'O' and buttons[5].text == 'O' and buttons[8].text == 'O':
-        return'O'
-
-    # slant
-    if buttons[0].text == 'X' and buttons[4].text == 'X' and buttons[8].text == 'X' or buttons[2].text == 'X' and buttons[4].text == 'X' and buttons[6].text == 'X':
-        return 'X'
-    elif  buttons[0].text == 'O' and buttons[4].text == 'O' and buttons[8].text == 'O 'or buttons[2].text == 'O' and buttons[4].text == 'O' and buttons[6].text == 'O':
-        return'O'
-
-    else:
-        return False
-
+def winner_checker(setup, new_game_button, game_number):
+    game_info = setup["driver"].find_element_by_class_name("game-info").text.split("\n")[0]
+    if "Winner" in game_info:
+        logging.info(f"The {game_info}!!!")
+        start_new_game(new_game_button, game_number)
+        game_number += 1
+        return True
+    return False
 
