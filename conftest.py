@@ -5,11 +5,16 @@ from selenium.webdriver.common.keys import Keys
 DRIVER_PATH = 'C:/bin/chromedriver.exe'
 SITE_PATH = 'https://unruffled-clarke-9db730.netlify.app/'
 
+def pytest_addoption(parser):
+    parser.addoption("--n", action="store", default=1, help="number of game to play")
+
 @pytest.fixture
-def setup_driver():
+def setup(request):
     logging.info("Setting up driver and path to the game")
-    driver = webdriver.Chrome(DRIVER_PATH)
-    driver.get(SITE_PATH)
-    yield driver
+    config_param = {}
+    config_param["number_of_games"] = request.config.getoption("--n")
+    config_param["driver"] = webdriver.Chrome(DRIVER_PATH)
+    config_param["driver"].get(SITE_PATH)
+    yield config_param
     logging.info("Closing the window of the game")
-    driver.close()
+    config_param["driver"].close()
